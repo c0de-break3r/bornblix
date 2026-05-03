@@ -1,0 +1,60 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./app/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
+  presets: [require("nativewind/preset")],
+  theme: {
+    extend: {
+      colors: {
+        bornblix: {
+          orange: '#F97316',
+          gold: '#F0C060',
+          indigo: '#6C63FF',
+          cream: '#FFFDF5',
+          dark: '#0D0D14',
+          amber: '#F59E0B',
+          coral: '#FF6B6B',
+          charcoal: '#0D0D14',
+          violet: '#4F46E5',
+        },
+        sanctuary: {
+          bg: '#0D0D14',
+          card: 'rgba(255,255,255,0.05)',
+          text: '#E0E0FF',
+          accent: '#6C63FF',
+          gold: '#F0C060',
+        },
+        journal: {
+          bg: '#FFFDF5',
+          card: '#FFFFFF',
+          text: '#2C2520',
+          accent: '#F59E0B',
+        },
+        quest: {
+          bg: 'linear-gradient(to bottom, #0EA5E9, #166534)',
+          card: 'rgba(255,255,255,0.95)',
+          text: '#052E16',
+        },
+      },
+      fontFamily: {
+        'playfair': ['PlayfairDisplay_700Bold', 'serif'],
+        'dm-sans': ['DMSans_400Regular', 'sans-serif'],
+        'nunito': ['Nunito_600SemiBold', 'sans-serif'],
+        heading: ['PlayfairDisplay_700Bold', 'serif'],
+        body: ['DMSans_400Regular', 'sans-serif'],
+        rounded: ['Nunito_600SemiBold', 'sans-serif'],
+      },
+      borderRadius: {
+        'xl': '24px',
+        '2xl': '32px',
+        '3xl': '40px',
+      },
+      backdropBlur: {
+        'xl': '20px',
+      },
+    },
+  },
+  plugins: [],
+}
