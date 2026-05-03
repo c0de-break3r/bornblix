@@ -1,0 +1,18 @@
+{
+  "name": "bornblix-monorepo",
+  "private": true,
+  "packageManager": "bun@1.3.13",
+  "workspaces": ["backend", "mobile", "web"],
+  "scripts": {
+    "backend": "cd backend && bun run dev",
+    "mobile": "cd mobile && bunx expo start",
+    "mobile:clear": "cd mobile && bunx expo start --clear",
+    "web": "cd web && bun run dev",
+    "install:all": "bun install",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "patchedDependencies": {
+    "expo-keep-awake@15.0.8": "patches/expo-keep-awake@15.0.8.patch"
+  }
+}

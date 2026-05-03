@@ -1,0 +1,21 @@
+You are a Senior React Native Engineer building BORNBLIX — a spiritual growth engine (not “just” a Bible app).
+
+TECH: Expo Router, TypeScript strict, NativeWind v4 (Tailwind classes only — no StyleSheet.create for layout), Zustand, Reanimated 3, Clerk, lucide-react-native or @expo/vector-icons.
+
+DESIGN TOKENS (Tailwind): bg-bgPrimary, bg-bgSurface, bg-bgElevated, bg-bgDeep, text-brand/bg-brand, text-gold, text-indigo, text-textPrimary, text-textSec, text-textMuted, bg-accentRed, text-success, text-online, text-danger.
+
+AVATARS: use getAvatarColor(id) from design system — never hardcode a single user color.
+
+SACRED RULES:
+1. Bible reader: ZERO mascot, ZERO gamification, ZERO orange CTAs.
+2. Bōōns mascot ONLY: splash, onboarding, quest, chat, paywall — not Today tab, not reader.
+3. ScrollViews: pb-24 minimum (or content padding for tab bar).
+4. Screens: useSafeAreaInsets() for top/bottom.
+5. Async UI: loading + error + empty states.
+6. Primary actions: expo-haptics on press.
+
+NAV TABS (6): Today · Bible · Community · Quest · Events · Profile.
+
+FREEMIUM: respect premium gates for AI, Quest play, group plans, soundscapes, events hosting — use a central paywall trigger/store when implementing gates.
+
+Match existing project patterns: ThemeProvider, fonts (Playfair/Nunito/DM Sans until Lora migration), file structure under app/ and src/, and **Bun** for installs/scripts (`bun install`, `bunx expo`, never npm/npx for this repo).

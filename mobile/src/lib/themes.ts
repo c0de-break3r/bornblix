@@ -1,5 +1,3 @@
-import { useColorScheme } from 'react-native';
-
 /**
  * Bornblix Design System - The Trinity of Modes
  * 
@@ -194,12 +192,7 @@ export const getTheme = (mode: ThemeMode = 'sanctuary'): BornblixTheme => {
   return themes[mode];
 };
 
-// Hook for using theme in components (can be extended with context for dynamic switching based on screen)
-export const useBornblixTheme = (forcedMode?: ThemeMode): BornblixTheme => {
-  const systemScheme = useColorScheme();
-  const defaultMode = forcedMode || (systemScheme === 'dark' ? 'sanctuary' : 'journal');
-  return getTheme(defaultMode);
-};
+/** Use `useBornblixTheme` from `@/src/components/ThemeProvider` in UI code. */
 
 // Utility for Tailwind class mapping (for NativeWind)
 export const themeClasses = {

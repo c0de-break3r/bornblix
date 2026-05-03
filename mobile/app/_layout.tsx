@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import * as SplashScreen from 'expo-splash-screen';
-import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { ClerkProvider } from '@clerk/clerk-expo';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   PlayfairDisplay_400Regular,
   PlayfairDisplay_700Bold,
@@ -18,63 +20,39 @@ import {
   Nunito_700Bold,
 } from '@expo-google-fonts/nunito';
 import 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import '../src/global.css';
 
-import { BornblixThemeProvider } from '../src/components/ThemeProvider';
-import { useBornblixTheme } from '../src/lib/themes';
+import { initSentry, wrapRootComponent } from '@/src/instrumentation/sentry';
+import SocketConnection from '@/src/components/SocketConnection';
+import { BornblixThemeProvider, useBornblixTheme } from '../src/components/ThemeProvider';
 
-// Keep the splash screen visible while we fetch resources
+initSentry();
+
 SplashScreen.preventAutoHideAsync();
 
-const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_yourkeyhere'; // Replace with real key from Clerk dashboard
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 30_000 } },
+});
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim() ?? '';
+
+if (!publishableKey) {
+  throw new Error(
+    'Add EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY to mobile/.env. Get your key at https://dashboard.clerk.com — use the Expo integration.'
+  );
+}
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-function RootLayoutNav() {
-  const { isLoaded, isSignedIn } = useAuth();
-  const segments = useSegments();
-  const router = useRouter();
-  const theme = useBornblixTheme();
-
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    const inAuthGroup = segments[0] === '(auth)';
-
-    // Redirect logic
-    if (!isSignedIn && !inAuthGroup) {
-      // Redirect to auth if not signed in
-      router.replace('/(auth)/splash');
-    } else if (isSignedIn && inAuthGroup) {
-      // Redirect to home if signed in
-      router.replace('/(tabs)');
-    }
-  }, [isLoaded, isSignedIn, segments, router]);
-
-  // Hide splash when loaded
-  useEffect(() => {
-    if (isLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [isLoaded]);
-
-  return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.colors.background } }}>
-      {/* Auth Group */}
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      
-      {/* Main App Tabs */}
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      
-      {/* Other screens */}
-      <Stack.Screen name="chat" options={{ headerShown: false, presentation: 'modal' }} />
-      <Stack.Screen name="paywall" options={{ headerShown: false, presentation: 'modal' }} />
-    </Stack>
-  );
+function ThemedStatusBar() {
+  const { resolvedScheme } = useBornblixTheme();
+  return <StatusBar style={resolvedScheme === 'dark' ? 'light' : 'dark'} />;
 }
 
-export default function RootLayout() {
+function RootLayout() {
   const [loaded, error] = useFonts({
     PlayfairDisplay_400Regular,
     PlayfairDisplay_700Bold,
@@ -91,16 +69,31 @@ export default function RootLayout() {
     }
   }, [error]);
 
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [loaded]);
+
   if (!loaded) {
-    return null; // Or custom loading
+    return (
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#0D0D14' }} />
+    );
   }
 
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
-      <BornblixThemeProvider>
-        <RootLayoutNav />
-        <StatusBar style="light" /> {/* Default to light for dark sanctuary mode */}
-      </BornblixThemeProvider>
-    </ClerkProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <BornblixThemeProvider>
+          <QueryClientProvider client={queryClient}>
+            <SocketConnection />
+            <Slot />
+            <ThemedStatusBar />
+          </QueryClientProvider>
+        </BornblixThemeProvider>
+      </ClerkProvider>
+    </GestureHandlerRootView>
   );
 }
+
+export default wrapRootComponent(RootLayout);

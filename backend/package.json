@@ -5,16 +5,20 @@
   "private": true,
   "scripts": {
     "dev": "bun --hot src/app.ts",
-    "start": "bun src/app.ts",
+    "start": "bun index.ts",
     "seed": "bun src/scripts/seed.ts",
     "build": "bun build src/app.ts --outdir dist"
   },
   "dependencies": {
     "@clerk/express": "^1.7.60",
+    "@sentry/node": "^10.51.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
     "express": "^5.0.1",
     "mongoose": "^9.0.2",
-    "socket.io": "^4.8.2"
+    "socket.io": "^4.8.2",
+    "winston": "^3.19.0",
+    "zod": "^4.4.2"
   },
   "devDependencies": {
     "@types/bun": "latest",

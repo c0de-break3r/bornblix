@@ -5,7 +5,7 @@ import { MotiView } from 'moti';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 
-import { useBornblixTheme } from '../../src/lib/themes';
+import { useBornblixTheme } from '../../src/components/ThemeProvider';
 import { ReferenceAssets } from '@/src/constants/referenceAssets';
 
 const { width } = Dimensions.get('window');
@@ -20,7 +20,7 @@ const quizOptions = [
 const ageOptions = Array.from({ length: 15 }, (_, i) => 18 + i); // 18-32 example
 
 export default function OnboardingScreen() {
-  const { theme, setMode } = useBornblixTheme();
+  const { theme } = useBornblixTheme();
   const [step, setStep] = useState(0);
   const [selectedSeeking, setSelectedSeeking] = useState<string | null>(null);
   const [selectedAge, setSelectedAge] = useState<number | null>(null);
@@ -33,7 +33,6 @@ export default function OnboardingScreen() {
     
     if (step === 0) {
       setStep(1);
-      setMode('journal'); // Switch to warm theme for personalization
     } else if (step === 1 && selectedSeeking) {
       setIsLoading(true);
       setTimeout(() => {
@@ -41,9 +40,9 @@ export default function OnboardingScreen() {
         setStep(2);
       }, 1800); // Simulate "Curating your 7-day peace plan..."
     } else if (step === 2 && selectedAge) {
-      // Complete onboarding, go to login or home
+      // Complete onboarding → Clerk sign-in
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/(auth)/login');
+      router.replace('/sign-in');
     }
   };
 
@@ -103,7 +102,7 @@ export default function OnboardingScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity 
-              onPress={() => router.replace('/(auth)/login')}
+              onPress={() => router.replace('/sign-in')}
               className="mt-8"
             >
               <Text className="text-white/70 text-base" style={{ fontFamily: 'DMSans_400Regular' }}>

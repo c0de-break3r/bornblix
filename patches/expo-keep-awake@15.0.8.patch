@@ -1,0 +1,25 @@
+diff --git a/src/index.ts b/src/index.ts
+index b7a856e4c9efc5af139591c37a84d74ecde21b3b..b1fb95d5f6b683aad41474bfa4dca06c47b15b99 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -30,11 +30,15 @@ export function useKeepAwake(tag?: string, options?: KeepAwakeOptions): void {
+ 
+   useEffect(() => {
+     let isMounted = true;
+-    activateKeepAwakeAsync(tagOrDefault).then(() => {
+-      if (isMounted && ExpoKeepAwake.addListenerForTag && options?.listener) {
+-        addListener(tagOrDefault, options.listener);
+-      }
+-    });
++    activateKeepAwakeAsync(tagOrDefault)
++      .then(() => {
++        if (isMounted && ExpoKeepAwake.addListenerForTag && options?.listener) {
++          addListener(tagOrDefault, options.listener);
++        }
++      })
++      .catch(() => {
++        // No current Activity yet (e.g. Android dev: device locked during load). Safe to ignore.
++      });
+     return () => {
+       isMounted = false;
+       if (options?.suppressDeactivateWarnings) {

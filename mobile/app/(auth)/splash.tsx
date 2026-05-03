@@ -38,7 +38,7 @@ export default function SplashScreen() {
       <MotiView
         from={{ opacity: 0, scale: 0.85, translateY: 40 }}
         animate={{ opacity: 1, scale: 1, translateY: 0 }}
-        transition={{ type: 'spring', duration: 1200, bounce: 0.28 }}
+        transition={{ type: 'spring', damping: 18, stiffness: 200 }}
         className="mb-6 items-center justify-center"
       >
         <View className="rounded-[40px] overflow-hidden border-4 border-[#F0C060]/90 shadow-2xl" style={{

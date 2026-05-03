@@ -1,46 +1,107 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useColorScheme } from 'react-native';
 import { useSegments } from 'expo-router';
 import { ThemeMode, getTheme, themes } from '../lib/themes';
+
+const STORAGE_KEY = 'bornblix-appearance';
+
+export type AppearancePreference = 'system' | 'light' | 'dark';
 
 interface ThemeContextType {
   mode: ThemeMode;
   theme: ReturnType<typeof getTheme>;
-  setMode: (mode: ThemeMode) => void;
+  routeMode: ThemeMode;
+  appearance: AppearancePreference;
+  setAppearance: (pref: AppearancePreference) => void;
+  resolvedScheme: 'light' | 'dark';
 }
 
 const BornblixThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function routeModeFromSegments(segments: string[]): ThemeMode {
+  const path = segments.join('/');
+  if (path.includes('quest')) return 'quest';
+  const onTodayTab =
+    path.includes('today') ||
+    path === '(tabs)' ||
+    path === '(tabs)/index' ||
+    path.endsWith('/(tabs)/index') ||
+    segments[segments.length - 1] === 'index';
+  if (onTodayTab) return 'journal';
+  return 'sanctuary';
+}
+
+function effectiveThemeMode(routeMode: ThemeMode, scheme: 'light' | 'dark'): ThemeMode {
+  if (routeMode === 'quest') return 'quest';
+  if (routeMode === 'journal') return 'journal';
+  return scheme === 'dark' ? 'sanctuary' : 'journal';
+}
+
 export function BornblixThemeProvider({ children }: { children: ReactNode }) {
   const segments = useSegments();
-  const [mode, setMode] = useState<ThemeMode>('sanctuary');
+  const systemScheme = useColorScheme();
+  const [appearance, setAppearanceState] = useState<AppearancePreference>('system');
 
-  // Auto-detect mode based on route for contextual theming
   useEffect(() => {
-    const currentPath = segments.join('/');
-    if (currentPath.includes('today') || currentPath.includes('journal')) {
-      setMode('journal');
-    } else if (currentPath.includes('quest')) {
-      setMode('quest');
-    } else if (currentPath.includes('bible') || currentPath.includes('chat') || currentPath.includes('home')) {
-      setMode('sanctuary');
-    }
-    // Default to sanctuary for auth/splash
-  }, [segments]);
+    AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
+      if (stored === 'light' || stored === 'dark' || stored === 'system') {
+        setAppearanceState(stored);
+      }
+    });
+  }, []);
 
-  const theme = getTheme(mode);
+  const setAppearance = useCallback((pref: AppearancePreference) => {
+    setAppearanceState(pref);
+    void AsyncStorage.setItem(STORAGE_KEY, pref);
+  }, []);
 
-  return (
-    <BornblixThemeContext.Provider value={{ mode, theme, setMode }}>
-      {children}
-    </BornblixThemeContext.Provider>
+  const resolvedScheme: 'light' | 'dark' =
+    appearance === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : appearance;
+
+  const routeMode = useMemo(() => routeModeFromSegments(segments as string[]), [segments]);
+
+  const mode = useMemo(
+    () => effectiveThemeMode(routeMode, resolvedScheme),
+    [routeMode, resolvedScheme],
   );
+
+  const theme = useMemo(() => getTheme(mode), [mode]);
+
+  const value = useMemo(
+    () => ({
+      mode,
+      theme,
+      routeMode,
+      appearance,
+      setAppearance,
+      resolvedScheme,
+    }),
+    [mode, theme, routeMode, appearance, setAppearance, resolvedScheme],
+  );
+
+  return <BornblixThemeContext.Provider value={value}>{children}</BornblixThemeContext.Provider>;
 }
 
 export const useBornblixTheme = () => {
   const context = useContext(BornblixThemeContext);
   if (context === undefined) {
-    // Fallback for when used outside provider (e.g. during initial render)
-    return { mode: 'sanctuary' as ThemeMode, theme: themes.sanctuary, setMode: () => {} };
+    return {
+      mode: 'sanctuary' as ThemeMode,
+      theme: themes.sanctuary,
+      routeMode: 'sanctuary' as ThemeMode,
+      appearance: 'system' as AppearancePreference,
+      setAppearance: () => {},
+      resolvedScheme: 'light' as const,
+    };
   }
   return context;
 };

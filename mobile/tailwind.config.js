@@ -8,6 +8,23 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        bgPrimary: '#1A1A2E',
+        bgSurface: '#16213E',
+        bgElevated: '#0F3460',
+        bgDeep: '#0D0D14',
+        brand: '#F97316',
+        gold: '#F0C060',
+        indigo: '#6C63FF',
+        accentRed: '#E94560',
+        accentPurple: '#533483',
+        accentBlue: '#457B9D',
+        textPrimary: '#EAEAEA',
+        textSec: '#A8A8B3',
+        textMuted: '#6B6B7B',
+        online: '#4CAF50',
+        success: '#22C55E',
+        warning: '#F59E0B',
+        danger: '#EF4444',
         bornblix: {
           orange: '#F97316',
           gold: '#F0C060',

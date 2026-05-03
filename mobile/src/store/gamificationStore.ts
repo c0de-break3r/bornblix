@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 export interface Badge {
   id: string;
@@ -114,17 +115,7 @@ export const useGamificationStore = create<GamificationState>()(
     }),
     {
       name: 'bornblix-gamification-storage',
+      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );
-
-// Hook for easy streak modal trigger
-export const useStreakModal = () => {
-  const store = useGamificationStore();
-  const [showModal, setShowModal] = React.useState(false); // Would be in component
-
-  return {
-    shouldShowStreakModal: store.checkDailyStreak(),
-    openStreakModal: () => setShowModal(true),
-  };
-};

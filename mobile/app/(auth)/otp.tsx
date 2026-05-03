@@ -3,14 +3,14 @@ import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView } from 'r
 import { useLocalSearchParams, router } from 'expo-router';
 import { MotiView } from 'moti';
 import * as Haptics from 'expo-haptics';
-import { useBornblixTheme } from '../../src/lib/themes';
+import { useBornblixTheme } from '../../src/components/ThemeProvider';
 
 export default function OTPScreen() {
   const { email } = useLocalSearchParams<{ email?: string }>();
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<Array<TextInput | null>>([]);
   const [isVerifying, setIsVerifying] = useState(false);
-  const { theme } = useBornblixTheme('journal');
+  const { theme } = useBornblixTheme();
   const [timer, setTimer] = useState(45);
 
   // Countdown timer for resend
